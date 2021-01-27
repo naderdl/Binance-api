@@ -1,0 +1,198 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: local server for testing
+
+paths:
+  /binance/crypto-currency:
+    get:
+      summary: Returns a list of cryptoCurrencies or a cryptoCurrency from the Binance api and save them in DB.
+      parameters:
+        - $ref: "#/components/parameters/symbol"
+      responses:
+        "200":
+          description: A JSON array of cryptoCurrencies or a specific cryptoCurrency
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/cryptoCurrency"
+                  - $ref: "#/components/schemas/cryptoCurrencies"
+        "500":
+          $ref: "#/components/responses/500"
+        "400":
+          $ref: "#/components/responses/400"
+        "404":
+          $ref: "#/components/responses/404"
+
+  /crypto-currency:
+    get:
+      summary: Returns a list of cryptoCurrencies or a cryptoCurrency from the DB.
+      parameters:
+        - $ref: "#/components/parameters/symbol"
+      responses:
+        "200":
+          description: A JSON array of cryptoCurrencies or a specific cryptoCurrency
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/cryptoCurrency"
+                  - $ref: "#/components/schemas/cryptoCurrencies"
+        "500":
+          $ref: "#/components/responses/500"
+        "400":
+          $ref: "#/components/responses/400"
+        "404":
+          $ref: "#/components/responses/404"
+
+  /api-docs:
+    get:
+      summary: will show a documentation for the apis of this service.
+      responses:
+        "200":
+          description: renders swaggerUI.
+
+  /rial:
+    put:
+      summary: sets the dollar price in rial
+      description: set the price for usa dollar in iranian rial
+      requestBody:
+        $ref: "#/components/requestBodies/rialPrice"
+      responses:
+        "200":
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  symbol:
+                    type: string
+                  time:
+                    type: number
+                    description: timestamp
+                  markPrice:
+                    type: string
+        "500":
+          $ref: "#/components/responses/500"
+        "400":
+          $ref: "#/components/responses/400"
+
+components:
+  responses:
+    500:
+      description: internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              msg:
+                type: string
+                example: "!!!internal server error!!!"
+
+    400:
+      description: Bad Request Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              msg:
+                type: string
+                example: "!!!Bad Request Error!!!"
+    404:
+      description: something was not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              msg:
+                type: string
+                example: "!!!something not found!!"
+
+  parameters:
+    symbol:
+      in: query
+      name: symbol
+      required: false
+      schema:
+        type: string
+      example: BTCUSDT
+      description: a valid symbol
+
+  requestBodies:
+    rialPrice:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              price:
+                type: number
+                description: the price of one USD in IRR
+
+  schemas:
+    cryptoCurrencyFromBinance:
+      type: object
+      properties:
+        symbol:
+          type: string
+        markPrice:
+          type: string
+        indexPrice:
+          type: string
+        estimatedSettlePrice:
+          type: string
+        lastFundingRate:
+          type: string
+        interestRate:
+          type: string
+        nextFundingTime:
+          type: number
+        time:
+          type: number
+
+    cryptoCurrency:
+      type: object
+      properties:
+        _id:
+          type: string
+        symbol:
+          type: string
+        markPrice:
+          type: string
+        indexPrice:
+          type: string
+        priceInIRR:
+          type: string
+          nullable: true
+        estimatedSettlePrice:
+          type: string
+        lastFundingRate:
+          type: string
+        interestRate:
+          type: string
+        nextFundingTime:
+          type: number
+        time:
+          type: number
+
+    cryptoCurrencies:
+      type: array
+      items:
+        $ref: "#/components/schemas/cryptoCurrency"
+
+    cryptoCurrenciesFromBinance:
+      type: array
+      items:
+        $ref: "#/components/schemas/cryptoCurrencyFromBinance"
